@@ -1,0 +1,25 @@
+Data Size,Operation,Average (us),Median (us)
+100,Insert Head,1.048,1.0
+100,Insert Middle,5.312,3.9
+100,Insert Tail,1.038,1.0
+100,Delete Head,0.494,0.4
+100,Delete Middle,3.794,3.6
+100,Delete Tail,10.172,10.65
+1000,Insert Head,1.42,1.05
+1000,Insert Middle,39.428,35.7
+1000,Insert Tail,1.208,0.9
+1000,Delete Head,1.076,0.7
+1000,Delete Middle,38.832,35.5
+1000,Delete Tail,66.542,58.75
+10000,Insert Head,2.868,2.2
+10000,Insert Middle,421.598,372.55
+10000,Insert Tail,1.874,1.7
+10000,Delete Head,2.368,1.8
+10000,Delete Middle,374.128,364.6
+10000,Delete Tail,633.436,590.8
+100000,Insert Head,9.112,8.5
+100000,Insert Middle,3528.918,3164.55
+100000,Insert Tail,8.044,7.55
+100000,Delete Head,5.496,5.2
+100000,Delete Middle,3047.682,2946.3
+100000,Delete Tail,5091.782,4896.7
