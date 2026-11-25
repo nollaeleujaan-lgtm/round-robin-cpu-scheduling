@@ -1,77 +1,103 @@
-from linked_list import SinglyLinkedList
+
+import gc
+import tracemalloc
+import matplotlib.pyplot as plt
+
+# ==================================================
+# SINGLY LINKED LIST
+# ==================================================
+
+class Node:
+    def __init__(self, pid, burst_time):
+        self.pid = pid
+        self.burst_time = burst_time
+        self.remaining_time = burst_time
+        self.next = None
 
 
-class RoundRobinScheduler:
-    """
-    Scheduler CPU menggunakan algoritma Round Robin.
-    """
+class SinglyLinkedList:
+    def __init__(self):
+        self.head = None
+        self.tail = None
 
-    def __init__(self, quantum=4):
-        self.queue = SinglyLinkedList()
-        self.quantum = quantum
-        self.current_time = 0
-        self.execution_log = []
-        self.completion_time = {}
+    def insert_at_tail(self, pid, burst_time):
+        new_node = Node(pid, burst_time)
 
-    def add_process(self, pid, burst_time):
-        """Menambahkan proses ke antrean scheduler."""
-        self.queue.insert_process(pid, burst_time)
+        if self.head is None:
+            self.head = new_node
+            self.tail = new_node
+        else:
+            self.tail.next = new_node
+            self.tail = new_node
 
-    def run(self):
-        """Menjalankan seluruh proses menggunakan Round Robin."""
 
-        print("\n=== SIMULASI ROUND ROBIN ===")
-        print("Time Quantum:", self.quantum)
+# ==================================================
+# MEMORY PROFILING
+# ==================================================
 
-        while not self.queue.is_empty():
-            process = self.queue.dequeue()
+DATA_SIZES = [100, 1000, 10000, 100000]
+memory_results = []
 
-            if process is None:
-                break
+print("=" * 60)
+print(" MEMORY PROFILING - SINGLY LINKED LIST")
+print("=" * 60)
 
-            # Menentukan lama proses dijalankan
-            execution_time = min(
-                self.quantum,
-                process.remaining_time
-            )
+for size in DATA_SIZES:
+    gc.collect()
+    tracemalloc.start()
 
-            # Mengurangi sisa waktu proses
-            process.remaining_time -= execution_time
+    linked_list = SinglyLinkedList()
 
-            # Memperbarui waktu CPU
-            self.current_time += execution_time
+    # Mengukur memori sebelum pembuatan node
+    before_current, _ = tracemalloc.get_traced_memory()
 
-            # Mencatat proses yang dijalankan
-            self.execution_log.append(
-                (process.pid, execution_time)
-            )
+    # Membuat node sesuai ukuran data
+    for i in range(size):
+        linked_list.insert_at_tail(f"P{i+1}", 5)
 
-            print(
-                f"{process.pid} dijalankan selama "
-                f"{execution_time} satuan waktu"
-            )
+    # Mengukur memori setelah node dibuat
+    after_current, peak = tracemalloc.get_traced_memory()
 
-            # Memeriksa apakah proses sudah selesai
-            if process.remaining_time == 0:
-                self.completion_time[process.pid] = self.current_time
-                print(f"{process.pid} selesai.")
-            else:
-                # Memasukkan kembali proses ke belakang antrean
-                self.queue.enqueue_node(process)
+    memory_kb = (after_current - before_current) / 1024
+    memory_results.append(memory_kb)
 
-        self.display_results()
+    print(f"Jumlah Node: {size:>6} | Memori: {memory_kb:>10.2f} KB")
 
-    def display_results(self):
-        """Menampilkan hasil simulasi."""
+    tracemalloc.stop()
 
-        print("\n=== URUTAN EKSEKUSI CPU ===")
+    # Membersihkan data sebelum pengujian berikutnya
+    del linked_list
+    gc.collect()
 
-        for pid, duration in self.execution_log:
-            print(f"{pid} -> {duration} satuan waktu")
+print("=" * 60)
 
-        print("\n=== WAKTU PENYELESAIAN PROSES ===")
+# ==================================================
+# GRAPH
+# ==================================================
 
-        for pid, time in self.completion_time.items():
-            print(f"{pid}: {time}")
+plt.figure(figsize=(9, 5))
 
-        print("\nTotal waktu CPU:", self.current_time)
+plt.plot(
+    DATA_SIZES,
+    memory_results,
+    marker="o",
+    linewidth=2
+)
+
+plt.xscale("log")
+plt.xlabel("Jumlah Node")
+plt.ylabel("Konsumsi Memori (KB)")
+plt.title("Memory Profiling - Singly Linked List")
+
+plt.xticks(DATA_SIZES, ["100", "1.000", "10.000", "100.000"])
+plt.grid(True)
+plt.tight_layout()
+
+# Simpan grafik
+plt.savefig("grafik_memory_singly_linked_list.png", dpi=300)
+
+# Tampilkan grafik
+plt.show()
+
+print("Grafik berhasil disimpan:")
+print("grafik_memory_singly_linked_list.png")
